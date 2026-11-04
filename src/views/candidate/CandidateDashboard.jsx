@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import Icon from '../../components/Icon';
 import SmestaLogo from '../../assets/images/smesta_text_transparent.png';
 
-export default function CandidateDashboard({ onHome, onBrowseJobs, onLogout, onOpenDisc, onOpenMdt, onOpenBiodata }) {
+export default function CandidateDashboard({ candidate, onHome, onBrowseJobs, onLogout, onOpenDisc, onOpenMdt, onOpenBiodata }) {
+  const candidateData = candidate?.candidate || candidate || {};
+  const biodata = candidateData.biodata || {};
+  const candidateName = candidateData.full_name || candidateData.name || 'Kandidat';
+  const candidateInitials = candidateName.split(/\s+/).filter(Boolean).map((word) => word[0]).join('').slice(0, 2).toUpperCase();
+  const candidateFirstName = candidateName.split(/\s+/)[0];
   const [cvFile, setCvFile] = useState(null);
-  const [photo, setPhoto] = useState('');
+  const [photo, setPhoto] = useState(candidateData.avatar || '');
+  const [loggingOut, setLoggingOut] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'Nadia Permata',
-    role: 'Backend Engineer',
-    location: 'Surabaya',
-    email: 'nadia.permata@email.com',
-    phone: '0812 3456 7890',
-    education: 'S1 Teknik Informatika'
+    name: candidateName,
+    role: candidateData.position_applied || candidateData.position || candidateData.role || '-',
+    location: biodata.domicile || biodata.city || candidateData.location || '-',
+    email: candidateData.email || '-',
+    phone: candidateData.phone || candidateData.phone_number || '-',
+    education: biodata.last_education || biodata.education || candidateData.education || '-'
   });
   const updateProfile = event => {
     const { name, value } = event.target;
@@ -31,13 +37,22 @@ export default function CandidateDashboard({ onHome, onBrowseJobs, onLogout, onO
     event.preventDefault();
     setProfileSaved(true);
   };
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await onLogout();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
   return <div className="candidate-dashboard">
     <header className="candidate-dashboard-header">
       <button className="candidate-dashboard-logo" type="button" onClick={onHome} aria-label="Kembali ke halaman awal"><img src={SmestaLogo} alt="SMESTA"/><span>CAREER</span></button>
-      <div className="candidate-account"><span>NP</span><div><b>Nadia Permata</b><small>Kandidat</small></div><button onClick={onLogout} title="Keluar">↗</button></div>
+      <div className="candidate-account"><span>{candidateInitials}</span><div><b>{candidateName}</b><small>Kandidat</small></div><button onClick={handleLogout} disabled={loggingOut} title={loggingOut ? 'Sedang keluar...' : 'Keluar'} aria-label={loggingOut ? 'Sedang keluar' : 'Keluar dari akun'}>{loggingOut ? '…' : '↗'}</button></div>
     </header>
     <main className="candidate-dashboard-main">
-      <section className="candidate-welcome"><div><span>SELAMAT DATANG KEMBALI</span><h1>Halo, Nadia 👋</h1><p>Pantau perkembangan lamaran dan temukan kesempatan karier terbaikmu.</p></div><button onClick={onBrowseJobs}><Icon name="search" size={17}/> Cari Lowongan</button></section>
+      <section className="candidate-welcome"><div><span>SELAMAT DATANG KEMBALI</span><h1>Halo, {candidateFirstName} 👋</h1><p>Pantau perkembangan lamaran dan temukan kesempatan karier terbaikmu.</p></div><button onClick={onBrowseJobs}><Icon name="search" size={17}/> Cari Lowongan</button></section>
       <section className="candidate-summary">
         <article><span className="summary-icon blue"><Icon name="briefcase"/></span><div><small>Total Lamaran</small><b>3</b><p>Seluruh lamaranmu</p></div></article>
         <article><span className="summary-icon cyan"><Icon name="pipeline"/></span><div><small>Dalam Proses</small><b>2</b><p>Sedang ditinjau tim HR</p></div></article>
@@ -49,13 +64,13 @@ export default function CandidateDashboard({ onHome, onBrowseJobs, onLogout, onO
           <form className="candidate-profile-overview candidate-profile-content" onSubmit={saveProfile}>
             <div className="candidate-profile-identity editable">
               <label className="candidate-photo-upload" title="Upload foto profil">
-                {photo ? <img src={photo} alt="Foto kandidat"/> : <span>NP</span>}
+                {photo ? <img src={photo} alt="Foto kandidat"/> : <span>{candidateInitials}</span>}
                 <input type="file" accept="image/png,image/jpeg,image/webp" onChange={updatePhoto}/><i>Ubah foto</i>
               </label>
               <div><small>PROFIL KANDIDAT</small><input className="candidate-name-input" name="name" value={profile.name} onChange={updateProfile}/><div className="candidate-role-row"><input name="role" value={profile.role} onChange={updateProfile}/><span>·</span><input name="location" value={profile.location} onChange={updateProfile}/></div></div>
             </div>
             <div className="candidate-profile-details editable">
-              <label><small>ID Kandidat</small><input value="CAN-2026-0184" readOnly/></label>
+              <label><small>ID Kandidat</small><input value={candidateData.id || '-'} readOnly/></label>
               <label><small>Email</small><input name="email" type="email" value={profile.email} onChange={updateProfile}/></label>
               <label><small>No. HP</small><input name="phone" type="tel" value={profile.phone} onChange={updateProfile}/></label>
               <label><small>Pendidikan terakhir</small><input name="education" value={profile.education} onChange={updateProfile}/></label>

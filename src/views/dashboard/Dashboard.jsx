@@ -5,7 +5,7 @@ import SmestaLogo from '../../assets/images/smesta_text_transparent.png';
 import SusantiMegahLogo from '../../assets/images/customer-portal-mark.png';
 import JobDetail from '../job/JobDetail';
 
-export default function Dashboard({ onLogin, isLoggedIn }) {
+export default function Dashboard({ onLogin, onOpenDashboard, isLoggedIn, candidate }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -24,13 +24,14 @@ export default function Dashboard({ onLogin, isLoggedIn }) {
     return job.status === 'Aktif' && text.includes(query.toLowerCase()) && (location === 'Semua Lokasi' || job.location === location) && (department === 'Semua Departemen' || job.department === department);
   }), [department, jobs, location, query]);
   const resetFilters = () => { setQuery(''); setLocation('Semua Lokasi'); setDepartment('Semua Departemen'); };
+  const candidateName = candidate?.full_name || candidate?.name || 'Kandidat';
 
   if (selectedJob) return <JobDetail job={selectedJob} onBack={() => setSelectedJob(null)} onLogin={onLogin} isLoggedIn={isLoggedIn}/>;
 
   return <div className="career-page">
     <header className="career-header">
       <a className="career-brand career-logo-lockup" href="#top" aria-label="SMESTA Career"><img src={SmestaLogo} alt="SMESTA"/><span>CAREER</span></a>
-      <button className="career-login" onClick={onLogin}>Masuk Kandidat</button>
+      <button className={`career-login ${isLoggedIn ? 'logged-in' : ''}`} onClick={isLoggedIn ? onOpenDashboard : onLogin}>{isLoggedIn ? candidateName : 'Masuk Kandidat'}</button>
     </header>
     <main>
       <section className="career-hero" id="top">

@@ -8,6 +8,8 @@ import DiscIntro from './views/disc/DiscIntro';
 import MdtAssessment from './views/mdt/MdtAssessment';
 import ApplicantBiodata from './views/candidate/ApplicantBiodata';
 import { recruitmentNavigation } from './routes';
+import { clearCandidateUserCookie, getCandidateUserCookie } from './utils/candidateSession';
+import AuthServices from './services/recruitment/AuthServices';
 
 const icons = {
   dashboard: '<path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>',
@@ -65,16 +67,31 @@ function App(){
   const [showAuth, setShowAuth] = useState(false);
   const [publicPage, setPublicPage] = useState('career');
   const [isLoggedIn, setIsLoggedIn] = useState(() => sessionStorage.getItem('smesta-candidate-auth') === '1');
-  const authenticated = () => {
+  const [candidateUser, setCandidateUser] = useState(() => {
+    const storedUser = getCandidateUserCookie();
+    return storedUser?.candidate || storedUser;
+  });
+  const authenticated = (user) => {
     sessionStorage.setItem('smesta-candidate-auth', '1');
+    setCandidateUser(user);
     setIsLoggedIn(true);
     setShowAuth(false);
     setPublicPage('candidate');
   };
-  const logout = () => {
-    sessionStorage.removeItem('smesta-candidate-auth');
-    setIsLoggedIn(false);
-    setPublicPage('career');
+  const logout = async () => {
+    const token = sessionStorage.getItem('smesta-candidate-token');
+    try {
+      if (token) await AuthServices.postLogout(token);
+    } catch {
+      // Sesi lokal tetap harus dibersihkan ketika API logout tidak tersedia.
+    } finally {
+      sessionStorage.removeItem('smesta-candidate-auth');
+      sessionStorage.removeItem('smesta-candidate-token');
+      clearCandidateUserCookie();
+      setCandidateUser(null);
+      setIsLoggedIn(false);
+      setPublicPage('career');
+    }
   };
   return <>{publicPage === 'mdt'
     ? <MdtAssessment onBack={() => setPublicPage('candidate')}/>
@@ -83,10 +100,10 @@ function App(){
     : publicPage === 'disc-intro'
     ? <DiscIntro onBack={() => setPublicPage('candidate')} onStart={() => setPublicPage('disc')}/>
     : publicPage === 'disc'
-    ? <DiscAssessment onBack={() => setPublicPage('candidate')} onComplete={() => { window.alert('Jawaban DISC berhasil dikirim sebagai demo.'); setPublicPage('candidate'); }}/>
+    ? <DiscAssessment onBack={() => setPublicPage('candidate')} onComplete={() => setPublicPage('candidate')}/>
     : publicPage === 'candidate'
-      ? <CandidateDashboard onHome={() => setPublicPage('career')} onBrowseJobs={() => setPublicPage('career')} onLogout={logout} onOpenDisc={() => setPublicPage('disc-intro')} onOpenMdt={() => setPublicPage('mdt')} onOpenBiodata={() => setPublicPage('biodata')}/>
-      : <RecruitmentDashboard onLogin={() => setShowAuth(true)} isLoggedIn={isLoggedIn}/>}
+      ? <CandidateDashboard candidate={candidateUser} onHome={() => setPublicPage('career')} onBrowseJobs={() => setPublicPage('career')} onLogout={logout} onOpenDisc={() => setPublicPage('disc-intro')} onOpenMdt={() => setPublicPage('mdt')} onOpenBiodata={() => setPublicPage('biodata')}/>
+      : <RecruitmentDashboard candidate={candidateUser} onLogin={() => setShowAuth(true)} onOpenDashboard={() => setPublicPage('candidate')} isLoggedIn={isLoggedIn}/>}
     {showAuth && <CandidateAuth onClose={() => setShowAuth(false)} onAuthenticated={authenticated}/>}</>;
 }
 
