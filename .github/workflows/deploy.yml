@@ -27,7 +27,7 @@ jobs:
           fi
           npm install
           npm run build
-          # tes
+          # teses
 
       - name: 📂 Deploy to Server via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
