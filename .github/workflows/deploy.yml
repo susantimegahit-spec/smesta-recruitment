@@ -1,50 +1,39 @@
-name: Deploy Recruitment Frontend
+name: Dev deploy
 
 on:
   push:
     branches:
-      - main         # Atau 'development', sesuaikan dengan branch default repo FE
-      - production
+      - development
 
 jobs:
   deploy:
-    name: 🚀 Build & Deploy to Server
+    name: 🎉 Deploy Dev
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚚 Checkout Code
+      - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js 20
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: 🔨 Install & Build Project
+      - name: 🔨 Install & Build Project (NPM)
         run: |
-          # 1. Setup Environment
           if [ -f .env.example ]; then
             cp .env.example .env
           fi
-
-          # 2. Install dependencies & Build
-          # Jika menggunakan Yarn v4 (seperti repo sm-connect):
-          # corepack enable
-          # yarn install --no-immutable
-          # yarn build
-          npm ci
+          npm install
           npm run build
-          
-          # CATATAN: Jika FE memakai npm biasa, ganti 3 baris di atas dengan:
-          # npm ci
-          # npm run build
 
       - name: 📂 Deploy to Server via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
+          username: 'susantimegah'
           server: '163.61.58.29'
           port: 22
-          username: 'susantimegah'
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           local_path: 'dist/*'
           remote_path: '/home/susantimegah/public_html/recruitment-dev.susantimegah.com/'
