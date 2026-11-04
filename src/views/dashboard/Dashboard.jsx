@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Icon from '../../components/Icon';
 import JobVacancyServices from '../../services/recruitment/JobVacancyServices';
-import SmestaLogo from '../../../../distributor-channel/src/assets/images/smesta_text_transparent.png';
-import SusantiMegahLogo from '../../../../distributor-channel/src/assets/images/customer-portal-mark.png';
+import SmestaLogo from '../../assets/images/smesta_text_transparent.png';
+import SusantiMegahLogo from '../../assets/images/customer-portal-mark.png';
 import JobDetail from '../job/JobDetail';
 
 export default function Dashboard({ onLogin, isLoggedIn }) {

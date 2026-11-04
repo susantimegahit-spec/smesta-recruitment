@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { discQuestions } from '../../data/discQuestions';
-import SmestaLogo from '../../../../distributor-channel/src/assets/images/smesta_text_transparent.png';
+import SmestaLogo from '../../assets/images/smesta_text_transparent.png';
 
 export default function DiscAssessment({ onBack, onComplete }) {
   const [step, setStep] = useState(0);

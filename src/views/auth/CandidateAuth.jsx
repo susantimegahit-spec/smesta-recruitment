@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import SmestaLogo from '../../../../distributor-channel/src/assets/images/smesta_text_transparent.png';
+import SmestaLogo from '../../assets/images/smesta_text_transparent.png';
 
 const PasswordIcon = ({ visible }) => <svg viewBox="0 0 24 24" aria-hidden="true">
   {visible ? <><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></> : <><path d="M3 3l18 18"/><path d="M10.6 6.2A9.8 9.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.6 16.6 0 0 1-2.1 2.8M6.4 6.4C3.9 8.1 2.5 12 2.5 12s3.5 6 9.5 6a9.8 9.8 0 0 0 3.1-.5M9.9 9.9a3 3 0 0 0 4.2 4.2"/></>}

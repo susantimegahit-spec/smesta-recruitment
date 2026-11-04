@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Icon from '../../components/Icon';
-import SmestaLogo from '../../../../distributor-channel/src/assets/images/smesta_text_transparent.png';
+import SmestaLogo from '../../assets/images/smesta_text_transparent.png';
 
 export default function CandidateDashboard({ onHome, onBrowseJobs, onLogout, onOpenDisc, onOpenMdt, onOpenBiodata }) {
   const [cvFile, setCvFile] = useState(null);
