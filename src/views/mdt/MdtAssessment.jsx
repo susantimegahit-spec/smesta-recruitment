@@ -1,0 +1,22 @@
+import React, { useMemo, useState } from 'react';
+import SmestaLogo from '../../../../distributor-channel/src/assets/images/smesta_text_transparent.png';
+import { mdtQuestions } from '../../data/mdtQuestions';
+
+export default function MdtAssessment({ onBack }) {
+  const [started, setStarted] = useState(false);
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [review, setReview] = useState(false);
+  const question = mdtQuestions[step];
+  const answered = useMemo(() => Object.keys(answers).length, [answers]);
+
+  if (!started) return <div className="mdt-page"><MdtHeader onBack={onBack}/><main className="mdt-start"><span>ASSESSMENT KANDIDAT</span><h1>Tes MDT</h1><p>Pilih satu pernyataan dari setiap pasangan yang paling menggambarkan dirimu atau menunjukkan perasaanmu.</p><div className="mdt-start-meta"><div><b>90</b><small>Pasangan pernyataan</small></div><div><b>± 25 menit</b><small>Estimasi waktu</small></div><div><b>A atau B</b><small>Satu pilihan per soal</small></div></div><section><h2>Petunjuk pengisian</h2><ol><li>Baca kedua pernyataan A dan B dengan teliti.</li><li>Pilih satu pernyataan yang paling menunjukkan dirimu.</li><li>Jika keduanya terasa kurang sesuai, tetap pilih yang paling mendekati.</li><li>Jawablah secara spontan, jujur, dan jangan terlalu lama berpikir.</li></ol><label><input type="checkbox" id="mdt-ready"/> Saya memahami petunjuk dan siap memulai tes.</label><button onClick={(event)=>{const check=event.currentTarget.previousElementSibling.querySelector('input');if(check.checked)setStarted(true);else check.focus()}}>Mulai Tes MDT →</button></section></main></div>;
+
+  if (review) return <div className="mdt-page"><MdtHeader onBack={onBack}/><main className="mdt-review"><span>REVIEW JAWABAN</span><h1>Periksa jawaban MDT</h1><p>{90-answered} soal belum dikerjakan. Klik nomor soal untuk melengkapinya.</p><div className="mdt-review-grid">{mdtQuestions.map((item)=><button key={item.number} className={answers[item.number]?'complete':''} onClick={()=>{setStep(item.number-1);setReview(false)}}>{item.number}</button>)}</div><div><button onClick={()=>setReview(false)}>Kembali</button><button disabled={answered!==90} onClick={()=>{window.alert('Jawaban MDT berhasil dikirim sebagai demo.');onBack()}}>Kirim Jawaban</button></div></main></div>;
+
+  const select = (value) => setAnswers((previous) => ({ ...previous, [question.number]: value }));
+  const next = () => { if (!answers[question.number]) return; if(step===89)setReview(true); else setStep(step+1); };
+  return <div className="mdt-page"><MdtHeader onBack={onBack}/><main className="mdt-assessment"><div className="mdt-progress"><div><span>TES MDT</span><b>Soal {question.number} dari 90</b></div><div><i style={{width:`${answered/90*100}%`}}/></div><small>{Math.round(answered/90*100)}%</small></div><section className="mdt-question-nav"><header><b>Navigasi Soal</b><span>{90-answered} belum dikerjakan</span></header><div>{mdtQuestions.map((item)=><button key={item.number} className={`${answers[item.number]?'complete':''} ${item.number===question.number?'active':''}`} onClick={()=>setStep(item.number-1)}>{item.number}</button>)}</div></section><section className="mdt-question"><header><span>{String(question.number).padStart(2,'0')}</span><div><h1>Pilih satu pernyataan</h1><p>Pilih pernyataan yang paling menggambarkan dirimu.</p></div></header><label className={answers[question.number]==='A'?'selected':''}><input type="radio" name={`mdt-${question.number}`} checked={answers[question.number]==='A'} onChange={()=>select('A')}/><b>A</b><span>{question.a}</span><i>✓</i></label><label className={answers[question.number]==='B'?'selected':''}><input type="radio" name={`mdt-${question.number}`} checked={answers[question.number]==='B'} onChange={()=>select('B')}/><b>B</b><span>{question.b}</span><i>✓</i></label></section><div className="mdt-actions"><button disabled={step===0} onClick={()=>setStep(step-1)}>← Sebelumnya</button><span>{answers[question.number]?'Jawaban tersimpan':'Pilih A atau B'}</span><button disabled={!answers[question.number]} onClick={next}>{step===89?'Review Jawaban':'Selanjutnya →'}</button></div></main></div>;
+}
+
+function MdtHeader({ onBack }) { return <header className="mdt-header"><button onClick={onBack}>← Kembali ke dashboard</button><div><img src={SmestaLogo} alt="SMESTA"/><span>ASSESSMENT</span></div><small>Tes MDT · PT Susanti Megah</small></header>; }
